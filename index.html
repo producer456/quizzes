@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizzes</title>
+<style>
+  :root{--bg:#0f1320;--card:#1a2032;--ink:#e9edf6;--dim:#9aa4bd;--accent:#22d3ee;--line:#2a3350;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 20px}
+  h1{font-size:30px;margin:0 0 4px}
+  .sub{color:var(--dim);margin:0 0 28px}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;margin:0 0 12px;transition:border-color .15s,transform .05s}
+  a.card:hover{border-color:var(--accent)}
+  a.card:active{transform:scale(.995)}
+  .qt{font-size:18px;font-weight:600}
+  .qm{color:var(--dim);font-size:13px;margin-top:3px}
+  .empty{color:var(--dim);text-align:center;padding:40px 0}
+  .tag{display:inline-block;font-size:11px;color:var(--accent);border:1px solid var(--accent);
+    border-radius:6px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+</style></head>
+<body><div class="wrap">
+  <h1>Quizzes</h1>
+  <p class="sub">Practice multiple-choice quizzes. Pick one to start.</p>
+  <div id="list"><p class="empty">Loading…</p></div>
+</div>
+<script>
+fetch('quizzes.json?cb='+Date.now()).then(r=>r.json()).then(qs=>{
+  const el=document.getElementById('list');
+  if(!qs.length){el.innerHTML='<p class="empty">No quizzes published yet.</p>';return;}
+  qs.sort((a,b)=>(b.created||0)-(a.created||0));
+  el.innerHTML=qs.map(q=>`<a class="card" href="${q.file}">
+    <div class="qt">${q.title}<span class="tag">${q.count} Q</span></div>
+    <div class="qm">${q.source||''} · ${q.date||''}</div></a>`).join('');
+}).catch(()=>{document.getElementById('list').innerHTML='<p class="empty">Could not load quiz list.</p>'});
+</script>
+</body></html>
