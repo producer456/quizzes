@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIO 40A Week 9 - Bone Tissue</title>
+<style>
+:root{--bg:#0f1320;--card:#1a2032;--ink:#e9edf6;--dim:#9aa4bd;--accent:#22d3ee;--line:#2a3350;--ok:#34d399;--no:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:32px 18px 90px}
+a.back{color:var(--dim);text-decoration:none;font-size:13px}
+h1{font-size:26px;margin:6px 0 2px}
+.meta{color:var(--dim);font-size:13px;margin:0 0 22px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 14px}
+.qn{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.04em}
+.qt{font-size:17px;font-weight:600;margin:4px 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:0 0 8px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:3px}
+.opt.correct{border-color:var(--ok);background:rgba(52,211,153,.10)}
+.opt.wrong{border-color:var(--no);background:rgba(248,113,113,.10)}
+.exp{display:none;color:var(--dim);font-size:13px;margin-top:8px}
+.exp.show{display:block}
+.bar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 35%);padding:16px 0 4px;display:flex;gap:12px;align-items:center}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 20px;cursor:pointer;background:var(--accent);color:#06222a}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.score{font-size:18px;font-weight:700}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="./">&larr; all quizzes</a>
+<h1>BIO 40A Week 9 - Bone Tissue</h1>
+<p class="meta" id="meta"></p>
+<div id="quiz"></div>
+<div class="bar">
+  <button id="submit" onclick="grade()">Submit</button>
+  <button id="retake" class="ghost" style="display:none" onclick="render()">Retake</button>
+  <span class="score" id="score"></span>
+</div></div>
+<script>
+const QUIZ = [{"q": "According to the lecture material, what is the primary difference between intramembranous and endochondral ossification?", "options": ["Intramembranous ossification requires a cartilage template, while endochondral ossification develops directly from mesenchymal cells.", "Endochondral ossification forms bones of the skull and clavicles, while intramembranous ossification forms all other long and short bones.", "Intramembranous ossification involves chondrocytes, while endochondral ossification involves osteoblasts.", "Endochondral ossification requires a cartilage template, while intramembranous ossification develops directly from mesenchymal cells."], "answer": 3, "explain": "The key distinction is the presence or absence of a cartilage precursor; intramembranous skips this step."}, {"q": "What is the function of the periosteum in bone development and growth?", "options": ["It forms the cartilage template for endochondral ossification.", "It is the primary site of osteoblast activity and bone deposition.", "It provides nourishment to the bone and is involved in bone remodeling and growth in width.", "It is a layer of cartilage found at the articular surfaces of bones."], "answer": 2, "explain": "The periosteum is a membrane that contributes to bone growth and repair by providing a site for bone deposition."}, {"q": "Which of the following best describes the role of osteoclasts in bone remodeling?", "options": ["Osteoclasts secrete osteoid, the precursor to bone matrix.", "Osteoclasts differentiate from osteoblasts and maintain bone density.", "Osteoclasts resorb or break down bone tissue, releasing calcium and other minerals.", "Osteoclasts are responsible for the formation of lacunae within compact bone."], "answer": 2, "explain": "Osteoclasts are responsible for bone resorption, a crucial part of the remodeling process."}, {"q": "What is the primary function of trabeculae within spongy bone?", "options": ["To provide a smooth surface for articulation with other bones.", "To provide strength and support while minimizing bone weight.", "To house the medullary cavity and store bone marrow.", "To form the outer layer of compact bone."], "answer": 1, "explain": "Trabeculae create a network of struts that provide strength and reduce weight."}, {"q": "According to the lecture, what is the significance of the epiphyseal plate (or line) in long bone development?", "options": ["It is the site of cartilage calcification and eventual bone resorption.", "It is the region where bone growth in length occurs.", "It is the location where osteoblasts secrete osteoid and form compact bone.", "It is a layer of hyaline cartilage that covers the articular surfaces of bones."], "answer": 1, "explain": "The epiphyseal plate is the growth plate where longitudinal bone growth occurs."}, {"q": "What is the function of lacunae and canaliculi within compact bone?", "options": ["Lacunae are channels that connect osteocytes, while canaliculi house osteoblasts.", "Lacunae contain osteocytes, while canaliculi allow for nutrient and waste exchange between osteocytes.", "Lacunae are the sites of bone resorption, while canaliculi are involved in bone deposition.", "Lacunae are the primary sites of calcium storage, while canaliculi transport calcium."], "answer": 1, "explain": "Lacunae house osteocytes, and canaliculi facilitate communication and nutrient exchange."}, {"q": "Which of the following best describes the order of events in intramembranous ossification?", "options": ["Cartilage model → Primary ossification center → Secondary ossification center → Epiphyseal plate.", "Mesenchymal cells cluster → Osteoid secretion → Trabeculae formation → Periosteum development.", "Osteoclast activity → Osteoblast differentiation → Cartilage calcification → Medullary cavity formation.", "Periosteum formation → Chondrocyte differentiation → Osteoblast activity → Bone matrix deposition."], "answer": 1, "explain": "The correct sequence involves mesenchymal cell condensation, osteoid production, trabeculae formation, and periosteum development."}, {"q": "What is the role of the perichondrium in endochondral ossification?", "options": ["It directly forms the osteoblasts that deposit bone matrix.", "It becomes the periosteum and signals osteogenic cells to differentiate.", "It is responsible for the formation of trabeculae in spongy bone.", "It provides a protective layer over the articular surfaces of bones."], "answer": 1, "explain": "The perichondrium transforms into the periosteum and initiates the process of bone formation."}, {"q": "The lecture mentions that heavy metals accumulate in bones. What is the significance of this observation?", "options": ["It indicates that bones are a primary site for calcium storage.", "It suggests that bones are a reservoir for toxins and pollutants.", "It demonstrates the role of bones in regulating blood calcium levels.", "It highlights the importance of bone remodeling in maintaining overall health."], "answer": 1, "explain": "Bone's mineral composition makes it a site for accumulation of heavy metals."}, {"q": "What is the primary purpose of the PollEv system mentioned in the lecture?", "options": ["To provide a platform for submitting homework assignments.", "To track student attendance and gather feedback on course preparation.", "To deliver lecture materials and announcements.", "To facilitate online quizzes and assessments."], "answer": 1, "explain": "The PollEv system is used for attendance tracking and gauging student preparation for the quiz."}, {"q": "According to the lecture material, what is the primary effect of calcitonin on bone tissue?", "options": ["It activates osteoclasts, leading to increased calcium release into the blood.", "It inhibits osteoclasts and activates osteoblasts, promoting calcium deposition in bone.", "It decreases calcium absorption from the diet.", "It increases reabsorption of calcium from urine, leading to decreased serum calcium levels."], "answer": 1, "explain": "Calcitonin's primary function is to lower serum calcium by inhibiting bone resorption and promoting calcium deposition."}, {"q": "What is the significance of the interplay between parathyroid hormone (PTH) and vitamin D (Calcitriol) in calcium homeostasis?", "options": ["PTH inhibits the effects of vitamin D, preventing excessive calcium absorption.", "Vitamin D acts independently of PTH to regulate calcium levels in the blood.", "Vitamin D synergizes with PTH, enhancing its effects on calcium absorption and bone remodeling.", "PTH primarily targets the kidneys, while vitamin D primarily affects the intestines."], "answer": 2, "explain": "The lecture explicitly states that vitamin D synergizes with PTH to regulate calcium homeostasis."}, {"q": "A patient is diagnosed with osteomalacia/rickets. Based on the lecture material, what is the underlying cause of this condition?", "options": ["Excessive bone deposition leading to weakened and brittle bones.", "Progressive bone loss leading to weakened and brittle bones.", "A vitamin D deficiency resulting in soft, weak, and demineralized bones.", "Increased activity of osteoclasts, resulting in excessive calcium release into the blood."], "answer": 2, "explain": "The lecture explicitly states that osteomalacia/rickets is caused by a vitamin D deficiency."}, {"q": "During bone repair, what is the function of the 'soft callus' formed between the fracture hematoma and the hard callus?", "options": ["It is composed of compact bone and provides immediate structural support.", "It is a layer of fibrocartilage that bridges the fracture site and eventually calcifies.", "It is a layer of spongy bone that directly replaces the fracture hematoma.", "It is a layer of collagen that prevents infection at the fracture site."], "answer": 1, "explain": "The soft callus is described as fibrocartilage that bridges the fracture site and later calcifies."}, {"q": "Which of the following best describes the role of superficial osteoblast activity and deep osteoclast activity in bone appositional growth?", "options": ["Superficial osteoblasts deposit bone matrix while deep osteoclasts resorb bone, leading to increased bone length.", "Superficial osteoblasts resorb bone while deep osteoclasts deposit bone, leading to increased bone thickness.", "Superficial osteoblasts and deep osteoclasts both deposit bone, leading to increased bone thickness.", "Superficial osteoblasts and deep osteoclasts both resorb bone, leading to increased bone length."], "answer": 0, "explain": "Appositional growth involves superficial osteoblast deposition and deep osteoclast resorption, increasing bone thickness."}];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function esc(t){const d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML;}
+let state=[];
+function render(){
+  state = QUIZ.map(q=>{const order=shuffle(q.options.map((_,i)=>i));
+    return {q:q.q,explain:q.explain||"",opts:order.map(i=>q.options[i]),correct:order.indexOf(q.answer),picked:null};});
+  document.getElementById('meta').textContent = QUIZ.length+' questions';
+  document.getElementById('quiz').innerHTML = state.map((s,qi)=>`
+    <div class="q" id="q${qi}"><div class="qn">QUESTION ${qi+1}</div><div class="qt">${esc(s.q)}</div>
+    ${s.opts.map((o,oi)=>`<label class="opt" id="q${qi}o${oi}"><input type="radio" name="q${qi}" value="${oi}" onchange="state[${qi}].picked=${oi}"><span>${esc(o)}</span></label>`).join('')}
+    <div class="exp" id="exp${qi}">${esc(s.explain)}</div></div>`).join('');
+  document.getElementById('submit').style.display='';
+  document.getElementById('retake').style.display='none';
+  document.getElementById('score').textContent='';
+  window.scrollTo(0,0);
+}
+function grade(){
+  let c=0;
+  state.forEach((s,qi)=>{
+    if(s.picked===s.correct)c++;
+    document.querySelectorAll(`#q${qi} input`).forEach(i=>i.disabled=true);
+    const ok=document.getElementById(`q${qi}o${s.correct}`); if(ok)ok.classList.add('correct');
+    if(s.picked!=null&&s.picked!==s.correct){const w=document.getElementById(`q${qi}o${s.picked}`); if(w)w.classList.add('wrong');}
+    const e=document.getElementById(`exp${qi}`); if(e&&s.explain)e.classList.add('show');
+  });
+  document.getElementById('submit').style.display='none';
+  document.getElementById('retake').style.display='';
+  document.getElementById('score').textContent=`Score: ${c} / ${state.length} (${Math.round(100*c/state.length)}%)`;
+}
+render();
+</script></body></html>
