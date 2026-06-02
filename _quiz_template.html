@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root{--bg:#0f1320;--card:#1a2032;--ink:#e9edf6;--dim:#9aa4bd;--accent:#22d3ee;--line:#2a3350;--ok:#34d399;--no:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:32px 18px 110px}
+a.back{color:var(--dim);text-decoration:none;font-size:13px}
+h1{font-size:26px;margin:6px 0 2px}
+.meta{color:var(--dim);font-size:13px;margin:0 0 22px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 14px}
+.qn{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.04em}
+.qt{font-size:17px;font-weight:600;margin:4px 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:0 0 8px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:3px}
+.opt.correct{border-color:var(--ok);background:rgba(52,211,153,.10)}
+.opt.wrong{border-color:var(--no);background:rgba(248,113,113,.10)}
+.exp{display:none;color:var(--dim);font-size:13px;margin-top:8px}
+.exp.show{display:block}
+.results{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 16px}
+.score{font-size:22px;font-weight:800}
+.score.pass{color:var(--ok)} .score.warn{color:var(--accent)}
+.mastery{color:var(--ok);font-size:16px;font-weight:600;margin-top:8px}
+.review{margin-top:14px;font-size:13px;color:var(--dim);font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{font-size:13px;border:1px solid var(--no);color:#fca5a5;border-radius:8px;padding:4px 10px;background:rgba(248,113,113,.08)}
+.bar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 35%);padding:16px 0 4px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 20px;cursor:pointer;background:var(--accent);color:#06222a}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="./">&larr; all quizzes</a>
+<h1>__TITLE__</h1>
+<p class="meta" id="meta"></p>
+<div id="results" class="results" style="display:none"></div>
+<div id="quiz"></div>
+<div class="bar">
+  <button id="submit" onclick="grade()">Submit</button>
+  <span id="roundnote" class="meta" style="margin:0"></span>
+</div></div>
+<script>
+const QUIZ = __DATA__;                 // [{q, options, answer, explain, topic}]
+let pool = QUIZ.map((_,i)=>i);         // question indices currently in play
+let state = [];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function esc(t){const d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML;}
+
+function render(){
+  state = pool.map(qi=>{const q=QUIZ[qi];const order=shuffle(q.options.map((_,i)=>i));
+    return {qi, q:q.q, topic:q.topic||"", explain:q.explain||"", opts:order.map(i=>q.options[i]), correct:order.indexOf(q.answer), picked:null};});
+  document.getElementById('results').style.display='none';
+  document.getElementById('meta').textContent = pool.length+' question'+(pool.length===1?'':'s');
+  document.getElementById('roundnote').textContent = (pool.length===QUIZ.length) ? '' : 'Reviewing only what you missed';
+  document.getElementById('quiz').innerHTML = state.map((s,idx)=>`
+    <div class="q" id="q${idx}"><div class="qn">QUESTION ${idx+1}</div><div class="qt">${esc(s.q)}</div>
+    ${s.opts.map((o,oi)=>`<label class="opt" id="q${idx}o${oi}"><input type="radio" name="q${idx}" value="${oi}" onchange="state[${idx}].picked=${oi}"><span>${esc(o)}</span></label>`).join('')}
+    <div class="exp" id="exp${idx}">${esc(s.explain)}</div></div>`).join('');
+  document.getElementById('submit').style.display='';
+  window.scrollTo(0,0);
+}
+
+function grade(){
+  let correct=0; const missed=[];
+  state.forEach((s,idx)=>{
+    if(s.picked===s.correct) correct++; else missed.push(s.qi);
+    document.querySelectorAll(`#q${idx} input`).forEach(i=>i.disabled=true);
+    const ok=document.getElementById(`q${idx}o${s.correct}`); if(ok)ok.classList.add('correct');
+    if(s.picked!=null&&s.picked!==s.correct){const w=document.getElementById(`q${idx}o${s.picked}`); if(w)w.classList.add('wrong');}
+    const e=document.getElementById(`exp${idx}`); if(e&&s.explain)e.classList.add('show');
+  });
+  window._missed = missed;
+  const n=state.length, pct=Math.round(100*correct/n);
+  let html = `<div class="score ${pct>=80?'pass':'warn'}">Score: ${correct} / ${n} &nbsp; (${pct}%)</div>`;
+  if(missed.length===0){
+    html += `<div class="mastery">Perfect — you got every one in this round!</div>`;
+  } else {
+    const topics=[...new Set(missed.map(qi=>QUIZ[qi].topic).filter(Boolean))];
+    html += `<div class="review">Review these areas</div>`;
+    if(topics.length){ html += `<div class="chips">${topics.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>`; }
+    else { html += `<div class="chips">${missed.map(qi=>`<span class="chip">${esc(QUIZ[qi].q.slice(0,60))}…</span>`).join('')}</div>`; }
+  }
+  const r=document.getElementById('results'); r.innerHTML=html; r.style.display='';
+  document.getElementById('submit').style.display='none';
+  // action buttons
+  const bar=document.querySelector('.bar');
+  bar.querySelectorAll('.act').forEach(b=>b.remove());
+  if(missed.length){
+    const rm=document.createElement('button'); rm.className='act'; rm.textContent=`Retry the ${missed.length} I missed`;
+    rm.onclick=()=>{pool=window._missed;render();}; bar.appendChild(rm);
+  }
+  const ra=document.createElement('button'); ra.className='act ghost'; ra.textContent='Retake all';
+  ra.onclick=()=>{pool=QUIZ.map((_,i)=>i);render();}; bar.appendChild(ra);
+  document.getElementById('roundnote').textContent='';
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+render();
+</script></body></html>
