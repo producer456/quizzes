@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sepsis Hour-1 Bundle</title>
+<style>
+:root{--bg:#0f1320;--card:#1a2032;--ink:#e9edf6;--dim:#9aa4bd;--accent:#22d3ee;--line:#2a3350;--ok:#34d399;--no:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:32px 18px 90px}
+a.back{color:var(--dim);text-decoration:none;font-size:13px}
+h1{font-size:26px;margin:6px 0 2px}
+.meta{color:var(--dim);font-size:13px;margin:0 0 22px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 14px}
+.qn{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.04em}
+.qt{font-size:17px;font-weight:600;margin:4px 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:0 0 8px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:3px}
+.opt.correct{border-color:var(--ok);background:rgba(52,211,153,.10)}
+.opt.wrong{border-color:var(--no);background:rgba(248,113,113,.10)}
+.exp{display:none;color:var(--dim);font-size:13px;margin-top:8px}
+.exp.show{display:block}
+.bar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 35%);padding:16px 0 4px;display:flex;gap:12px;align-items:center}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 20px;cursor:pointer;background:var(--accent);color:#06222a}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.score{font-size:18px;font-weight:700}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="./">&larr; all quizzes</a>
+<h1>Sepsis Hour-1 Bundle</h1>
+<p class="meta" id="meta"></p>
+<div id="quiz"></div>
+<div class="bar">
+  <button id="submit" onclick="grade()">Submit</button>
+  <button id="retake" class="ghost" style="display:none" onclick="render()">Retake</button>
+  <span class="score" id="score"></span>
+</div></div>
+<script>
+const QUIZ = [{"q": "What is the primary definition of sepsis?", "options": ["A life-threatening infection.", "B Life-threatening organ dysfunction caused by a dysregulated host response to infection.", "C A severe inflammatory response.", "D A rapid decline in blood pressure due to infection."], "answer": 1, "explain": "Sepsis is defined as organ dysfunction resulting from a dysregulated response to infection."}, {"q": "Why is obtaining blood cultures *before* administering antibiotics crucial in sepsis management?", "options": ["A To ensure antibiotics are effective against the identified pathogen.", "B To guide antibiotic selection based on culture results.", "C To identify the causative organism and guide treatment.", "D To prevent antibiotic resistance from developing."], "answer": 2, "explain": "Blood cultures help identify the causative organism, allowing for targeted treatment."}, {"q": "What is the initial fluid resuscitation strategy in the Hour-1 sepsis bundle?", "options": ["A 10 mL/kg of crystalloid fluid.", "B 30 mL/kg of crystalloid fluid for hypotension or a lactate ≥ 4 mmol/L.", "C Rapid bolus of 500 mL normal saline.", "D Administering 5% albumin until blood pressure is restored."], "answer": 1, "explain": "The protocol calls for 30 mL/kg of crystalloid fluid for hypotension or elevated lactate."}, {"q": "Which vasopressor is considered the first-line agent in the sepsis Hour-1 bundle?", "options": ["A Phenylephrine.", "B Dopamine.", "C Norepinephrine.", "D Epinephrine."], "answer": 2, "explain": "Norepinephrine is the recommended first-line vasopressor for sepsis management."}, {"q": "Which of the following is NOT a component of the sepsis Hour-1 bundle?", "options": ["A Measuring lactate.", "B Obtaining blood cultures before antibiotics.", "C Administering broad-spectrum antibiotics.", "D Administering loop diuretics."], "answer": 3, "explain": "Loop diuretics are not included in the sepsis Hour-1 bundle."}];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function esc(t){const d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML;}
+let state=[];
+function render(){
+  state = QUIZ.map(q=>{const order=shuffle(q.options.map((_,i)=>i));
+    return {q:q.q,explain:q.explain||"",opts:order.map(i=>q.options[i]),correct:order.indexOf(q.answer),picked:null};});
+  document.getElementById('meta').textContent = QUIZ.length+' questions';
+  document.getElementById('quiz').innerHTML = state.map((s,qi)=>`
+    <div class="q" id="q${qi}"><div class="qn">QUESTION ${qi+1}</div><div class="qt">${esc(s.q)}</div>
+    ${s.opts.map((o,oi)=>`<label class="opt" id="q${qi}o${oi}"><input type="radio" name="q${qi}" value="${oi}" onchange="state[${qi}].picked=${oi}"><span>${esc(o)}</span></label>`).join('')}
+    <div class="exp" id="exp${qi}">${esc(s.explain)}</div></div>`).join('');
+  document.getElementById('submit').style.display='';
+  document.getElementById('retake').style.display='none';
+  document.getElementById('score').textContent='';
+  window.scrollTo(0,0);
+}
+function grade(){
+  let c=0;
+  state.forEach((s,qi)=>{
+    if(s.picked===s.correct)c++;
+    document.querySelectorAll(`#q${qi} input`).forEach(i=>i.disabled=true);
+    const ok=document.getElementById(`q${qi}o${s.correct}`); if(ok)ok.classList.add('correct');
+    if(s.picked!=null&&s.picked!==s.correct){const w=document.getElementById(`q${qi}o${s.picked}`); if(w)w.classList.add('wrong');}
+    const e=document.getElementById(`exp${qi}`); if(e&&s.explain)e.classList.add('show');
+  });
+  document.getElementById('submit').style.display='none';
+  document.getElementById('retake').style.display='';
+  document.getElementById('score').textContent=`Score: ${c} / ${state.length} (${Math.round(100*c/state.length)}%)`;
+}
+render();
+</script></body></html>
